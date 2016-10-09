@@ -1,0 +1,35 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="FullscreenTheme" parent="AppTheme">
+        <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
+        <item name="android:windowActionBarOverlay">false</item>
+
+        <item name="android:actionBarTheme">@style/Theme.AppCompat.NoActionBar</item>
+
+        <item name="android:windowBackground">@null</item>
+    </style>
+    <!-- 评价按钮 theme. -->
+    <style name="ButtonTheme" parent="AppTheme">
+        <item name="android:textSize">36sp</item>
+        <item name="android:background">@drawable/button_shape</item>
+        <item name="android:padding">3dp</item>
+        <item name="android:layout_margin">10dp</item>
+    </style>
+    <!-- 人员文字信息 theme. -->
+    <style name="InfoTheme" parent="AppTheme">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+    <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
+        <item name="android:background">@color/black_overlay</item>
+    </style>
+
+</resources>

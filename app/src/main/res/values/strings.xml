@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">平板评价器</string>
+    <string name="ServerPath">http://www.zjhuzhen.com:8080/hzsys/jycenter/</string>
+    <string name="Login">登录</string>
+    <string name="Background_Text">评价\n页面</string>
+    <string name="TitleName">缙云县行政服务（审批）中心</string>
+    <string name="Is_Onetime_Informing">业务一次性告知是否到位</string>
+    <string name="In_Place">到位</string>
+    <string name="Not_In_Place">不到位</string>
+    <string name="Satisfaction_Degree_2">满意</string>
+    <string name="Satisfaction_Degree_1">基本满意</string>
+    <string name="Satisfaction_Degree_0">不满意</string>
+    <string name="Complaint_Phone">投诉电话</string>
+    <string name="Head_Portrait">头像</string>
+    <string name="CN_Name">姓名</string>
+    <string name="ID_Number">工号</string>
+    <string name="Department">部门</string>
+    <string name="Telephone">电话</string>
+    <string name="soft_update_title">软件更新</string>
+    <string name="soft_update_info">有新版本，是否更新？</string>
+    <string name="soft_update_updatebtn">更新</string>
+    <string name="soft_update_later">以后更新</string>
+    <string name="soft_updating">软件下载</string>
+    <string name="soft_update_cancel">软件更新进度</string>
+    <string name="soft_update_no">不进行更新</string>
+    <string name="app_versionName">1.0</string>
+</resources>

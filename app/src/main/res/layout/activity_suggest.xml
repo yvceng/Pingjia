@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tvAdviserName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="44dp"
+        android:text="称谓：" />
+
+    <EditText
+        android:id="@+id/etAdviserName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/tvAdviserName"
+        android:layout_alignBottom="@+id/tvAdviserName"
+        android:layout_marginStart="56dp"
+        android:layout_toEndOf="@+id/tvAdviserName"
+        android:ems="11" >
+        <requestFocus />
+    </EditText>
+
+    <TextView
+        android:id="@+id/tvAdviserTel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tvAdviserName"
+        android:layout_below="@+id/etAdviserName"
+        android:layout_marginTop="42dp"
+        android:text="电话：" />
+
+    <EditText
+        android:id="@+id/etAdviserTel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/tvAdviserTel"
+        android:layout_alignStart="@+id/etAdviserName"
+        android:ems="11" />
+
+    <TextView
+        android:id="@+id/tvSuggestion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tvAdviserTel"
+        android:layout_below="@+id/tvAdviserTel"
+        android:layout_marginTop="42dp"
+        android:text="建议：" />
+
+    <EditText
+        android:id="@+id/etSuggestion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/tvSuggestion"
+        android:layout_alignStart="@+id/etAdviserTel"
+        android:inputType="textMultiLine"
+        android:minLines="2"
+        android:scrollbars="vertical"
+        android:maxLines="10"
+        android:ems="11" />
+
+</RelativeLayout>

@@ -1,0 +1,173 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#0099cc"
+    tools:context="com.umifish.pingjia.MainActivity">
+
+    <!-- The primary full-screen view. This can be replaced with whatever view
+         is needed to present your content, e.g. VideoView, SurfaceView,
+         TextureView, etc. -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFAEA"
+        android:id="@+id/main_layout"
+        >
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_margin="0px"
+        android:gravity="center"
+        android:background="#0099cc"
+        android:id="@+id/title_layout"
+        >
+        <TextView
+            android:text="@string/TitleName"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView1"
+            android:textSize="50sp"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            />
+        <Button
+            android:id="@+id/login_btn"
+            android:text="@string/Login"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="20sp"
+            android:textAllCaps="false"
+            android:onClick="OnLoginBtnClick" />
+
+    </LinearLayout>
+        <LinearLayout
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/middle_layout"
+            >
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="230dp"
+                android:layout_height="match_parent"
+                android:id="@+id/image_layout"
+                >
+                <ImageView
+                    android:contentDescription="@string/Head_Portrait"
+                    android:layout_height="match_parent"
+                    app:srcCompat="@mipmap/ic_launcher"
+                    android:id="@+id/imageView"
+                    android:layout_weight="1"
+                    android:layout_width="0dp" />
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:background="#AABBAA"
+                >
+                <WebView
+                    android:layout_height="match_parent"
+                    android:id="@+id/user_info_WebView"
+                    android:layout_width="wrap_content" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_gravity="bottom"
+        >
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_gravity="top"
+            android:weightSum="9"
+            android:background="#0099cc"
+            android:gravity="center"
+            >
+
+            <TextView
+                android:text="@string/Is_Onetime_Informing"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView2"
+                android:layout_weight="6"
+                android:textColor="@android:color/white"
+                android:textSize="40sp"
+                android:textAlignment="center" />
+
+            <Button
+                android:text="@string/In_Place"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:id="@+id/inPlaceBtn"
+                style="@style/ButtonTheme"
+                android:layout_weight="1.5"
+                android:onClick="OnInPlaceBtnClick"
+                />
+            <Button
+                android:text="@string/Not_In_Place"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:id="@+id/notInPlaceBtn"
+                style="@style/ButtonTheme"
+                android:layout_weight="1.5"
+                android:onClick="OnNotInPlaceBtnClick"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:weightSum="9"
+            android:id="@+id/satisfy_layout"
+            android:background="#0099cc"
+            >
+
+            <Button
+                android:text="@string/Satisfaction_Degree_2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:id="@+id/SatisfactionBtn2"
+                style="@style/ButtonTheme"
+                android:layout_weight="3"
+                android:onClick="OnSatisfactionBtn2Click" />
+            <Button
+                android:text="@string/Satisfaction_Degree_1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:id="@+id/SatisfactionBtn1"
+                style="@style/ButtonTheme"
+                android:layout_weight="3"
+                android:onClick="OnSatisfactionBtn1Click" />
+            <Button
+                android:text="@string/Satisfaction_Degree_0"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:id="@+id/SatisfactionBtn0"
+                style="@style/ButtonTheme"
+                android:layout_weight="3"
+                android:elevation="0dp"
+                android:onClick="OnSatisfactionBtn0Click" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    </LinearLayout>
+    <!-- This FrameLayout insets its children based on system windows using
+         android:fitsSystemWindows. -->
+
+</FrameLayout>
