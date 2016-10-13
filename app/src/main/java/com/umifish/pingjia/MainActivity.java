@@ -17,6 +17,8 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -27,10 +29,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- */
+
 public class MainActivity extends AppCompatActivity{
     /**
      * Whether or not the system UI should be auto-hidden after
@@ -83,7 +82,7 @@ public class MainActivity extends AppCompatActivity{
         //登陆对话框
         loginDlg = new AlertDialog.Builder(MainActivity.this);
         loginInflater = LayoutInflater.from(MainActivity.this);
-        loginDialogView = loginInflater.inflate(R.layout.activity_login, null);
+        loginDialogView = loginInflater.inflate(R.layout.activity_login, null,false);
         suggestDlg = new AlertDialog.Builder(MainActivity.this);
         suggestInflater = LayoutInflater.from(MainActivity.this);
         suggestDialogView = loginInflater.inflate(R.layout.activity_suggest, null);
@@ -114,15 +113,15 @@ public class MainActivity extends AppCompatActivity{
     }
     public void OnInPlaceBtnClick(View V)
     {
-
+        DisplayToast("正在提交评价");
     }
     public void OnSatisfactionBtn2Click(View V)
     {
-
+        DisplayToast("正在提交评价");
     }
     public void OnSatisfactionBtn1Click(View V)
     {
-
+        DisplayToast("正在提交评价");
     }
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -193,6 +192,10 @@ public class MainActivity extends AppCompatActivity{
         Toast toast = Toast.makeText(this, str, Toast.LENGTH_LONG);
         //设置toast显示的位置
         toast.setGravity(Gravity.TOP, 0, 220);
+        //调整字体大小
+        LinearLayout linearLayout = (LinearLayout) toast.getView();
+        TextView messageTextView = (TextView) linearLayout.getChildAt(0);
+        messageTextView.setTextSize(25);
         //显示该Toast
         toast.show();
     }
@@ -240,11 +243,10 @@ public class MainActivity extends AppCompatActivity{
 
     //建议对话框
     public void SuggestDialog() {
-        final EditText etAdviserName = (EditText) suggestDialogView.findViewById(R.id.etAdviserName);
         final EditText etAdviserTel = (EditText) suggestDialogView.findViewById(R.id.etAdviserTel);
         final EditText etSuggestion = (EditText) suggestDialogView.findViewById(R.id.etSuggestion);
 
-        suggestDlg.setTitle("登陆账号")
+        suggestDlg.setTitle("提交您的建议")
                 .setView(suggestDialogView)
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
@@ -262,7 +264,6 @@ public class MainActivity extends AppCompatActivity{
                         String httpType="POST";
                         String Url=getString(R.string.ServerPath)+"APPSuggestReceive.php";
                         urlParams.put("token",token);
-                        urlParams.put("name",etAdviserName.getText().toString());
                         urlParams.put("tel",etAdviserTel.getText().toString());
                         urlParams.put("sug",etSuggestion.getText().toString());
                         urlParams.put("act","login");
