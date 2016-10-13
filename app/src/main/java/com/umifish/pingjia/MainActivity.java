@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity{
     LayoutInflater suggestInflater;
     View loginDialogView;
     View suggestDialogView;
+    MainPresenter mainPresenter;
     public UIHandler UIhandler=new UIHandler(this);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +89,8 @@ public class MainActivity extends AppCompatActivity{
         suggestDialogView = loginInflater.inflate(R.layout.activity_suggest, null);
         LoginDialog();
         SuggestDialog();
+        mainPresenter=new MainPresenter(getString(R.string.ServerPath),UIhandler);
+        DisplayToast("重新加载布局了");
     }
 //登陆按钮
     public void OnLoginBtnClick(View V) {
@@ -99,6 +102,7 @@ public class MainActivity extends AppCompatActivity{
     //不到位按钮
         public void OnNotInPlaceBtnClick(View V)
     {
+        mainPresenter.doInPlace(0);
         if(suggestDialogView.getParent()!=null)
             ((ViewGroup) suggestDialogView.getParent()).removeView(suggestDialogView);
         suggestDlg.show();
@@ -107,20 +111,24 @@ public class MainActivity extends AppCompatActivity{
     public void OnSatisfactionBtn0Click(View V)
     {
         //判断之前是否已加载到父窗口，已加载要先去掉
+        mainPresenter.doEvaluating(0);
         if(suggestDialogView.getParent()!=null)
             ((ViewGroup) suggestDialogView.getParent()).removeView(suggestDialogView);
         suggestDlg.show();
     }
     public void OnInPlaceBtnClick(View V)
     {
+        mainPresenter.doInPlace(1);
         DisplayToast("正在提交评价");
     }
     public void OnSatisfactionBtn2Click(View V)
     {
+        mainPresenter.doEvaluating(2);
         DisplayToast("正在提交评价");
     }
     public void OnSatisfactionBtn1Click(View V)
     {
+        mainPresenter.doEvaluating(1);
         DisplayToast("正在提交评价");
     }
     @Override
@@ -189,7 +197,7 @@ public class MainActivity extends AppCompatActivity{
     /* 显示Toast  */
     public void DisplayToast(String str)
     {
-        Toast toast = Toast.makeText(this, str, Toast.LENGTH_LONG);
+        Toast toast = Toast.makeText(this, str, Toast.LENGTH_SHORT);//显示2秒
         //设置toast显示的位置
         toast.setGravity(Gravity.TOP, 0, 220);
         //调整字体大小
@@ -262,11 +270,11 @@ public class MainActivity extends AppCompatActivity{
                         DisplayToast("正在提交");
                         Map<String, String> urlParams=new HashMap<>();
                         String httpType="POST";
-                        String Url=getString(R.string.ServerPath)+"APPSuggestReceive.php";
+                        String Url=getString(R.string.ServerPath)+"APPComReceive.php";
                         urlParams.put("token",token);
                         urlParams.put("tel",etAdviserTel.getText().toString());
                         urlParams.put("sug",etSuggestion.getText().toString());
-                        urlParams.put("act","login");
+                        urlParams.put("act","sug");
                         HttpURLConnectionTools conn=new HttpURLConnectionTools(ifHttpCallback,httpType,Url,urlParams);
                         conn.start();
                         hide();
@@ -284,7 +292,6 @@ public class MainActivity extends AppCompatActivity{
         loginDlg.create();
     }
     protected void onResume() {
-
         hide();//需要重新隐藏
         super.onResume();
     }
@@ -303,9 +310,32 @@ public class MainActivity extends AppCompatActivity{
                 String ida=bundle.getString("ida");
                 Log.d("message get ida:",ida);
                 main.get().ida = ida;
-                main.get().token= bundle.getString("ida");
+                main.get().token= bundle.getString("token");
                 main.get().DisplayPortrait(ida);
                 main.get().DisplayUserInfo(ida);
+                main.get().mainPresenter.setToken(main.get().token);    //更新到控制器
+            }
+            if(act!=null&&act.equals("sug")) {
+
+                main.get().DisplayToast("谢谢您的建议");
+                Log.d("message get :","sug");
+            }
+            if(act!=null&&act.equals("sat")) {
+                main.get().DisplayToast("谢谢您的评价");
+                Log.d("message get :","sug");
+            }
+            if(act!=null&&act.equals("inp")) {
+                main.get().DisplayToast("谢谢您的评价");
+                Log.d("message get :","sug");
+            }
+            if(act!=null&&act.equals("toast")) {
+                main.get().DisplayToast(bundle.getString("string"));
+                Log.d("message get :","sug");
+            }
+            if(act!=null&&act.equals("netError")) {
+                main.get().DisplayToast("neterror");
+                String ida = bundle.getString("ida");
+                Log.d("message get :","neterror");
             }
         }
     }
@@ -331,10 +361,13 @@ public class MainActivity extends AppCompatActivity{
                     bd.putString("act", "updateIDa");
                     bd.putString("ida", json.getString("ida"));
                     bd.putString("token", json.getString("token"));
+                    bd.putString("result", "success");
                 }else if( json.getString("act").equals("sat")) {//判断是否是评价操作
                     bd.putString("act", "sat");
+                    bd.putString("result", "success");
                 }else if( json.getString("act").equals("sug")) {//判断是否是建议操作
                     bd.putString("act", "sug");
+                    bd.putString("result", "success");
                  }else{
                     return;
                 }
