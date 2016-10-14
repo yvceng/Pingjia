@@ -3,18 +3,19 @@ package com.umifish.pingjia;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,7 +28,6 @@ import org.json.JSONTokener;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity{
@@ -52,8 +52,10 @@ public class MainActivity extends AppCompatActivity{
     private View mContentView;
     private WebView mWebView;
 
-    AlertDialog.Builder loginDlg;
-    AlertDialog.Builder suggestDlg;
+    AlertDialog.Builder loginDlgBld;
+    AlertDialog.Builder suggestDlgBld;
+    AlertDialog suggestDlg;
+    AlertDialog loginDlg;
     EditText etUserName;
     EditText etPassword;
 //    EditText etAdviserName;
@@ -68,7 +70,9 @@ public class MainActivity extends AppCompatActivity{
     View loginDialogView;
     View suggestDialogView;
     MainPresenter mainPresenter;
+    private SoundPool soundPool;
     public UIHandler UIhandler=new UIHandler(this);
+    private HashMap<Integer, Integer> soundID = new HashMap<Integer, Integer>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,30 +85,39 @@ public class MainActivity extends AppCompatActivity{
         DisplayUserInfo("");
         DisplayPortrait("");
         //登陆对话框
-        loginDlg = new AlertDialog.Builder(MainActivity.this);
+        loginDlgBld = new AlertDialog.Builder(MainActivity.this);
         loginInflater = LayoutInflater.from(MainActivity.this);
         loginDialogView = loginInflater.inflate(R.layout.activity_login, null,false);
-        suggestDlg = new AlertDialog.Builder(MainActivity.this);
+        suggestDlgBld = new AlertDialog.Builder(MainActivity.this);
         suggestInflater = LayoutInflater.from(MainActivity.this);
         suggestDialogView = loginInflater.inflate(R.layout.activity_suggest, null);
         LoginDialog();
         SuggestDialog();
         mainPresenter=new MainPresenter(getString(R.string.ServerPath),UIhandler);
-        DisplayToast("重新加载布局了");
+
+        SoundPool.Builder builder = new SoundPool.Builder();
+        builder.setMaxStreams(5);//传入音频数量
+        //AudioAttributes是一个封装音频各种属性的方法
+        AudioAttributes.Builder attrBuilder = new AudioAttributes.Builder();
+        attrBuilder.setLegacyStreamType(AudioManager.STREAM_MUSIC);//设置音频流的合适的属性
+        builder.setAudioAttributes(attrBuilder.build());//加载一个AudioAttributes
+        soundPool = builder.build();
+        //soundPool= new SoundPool(10, AudioManager.STREAM_MUSIC,5);
+
+        soundID.put(1,soundPool.load(this,R.raw.welcome,1));
+        soundID.put(2,soundPool.load(this,R.raw.thankpj,1));
+        soundID.put(3,soundPool.load(this,R.raw.thankjy,1));
+        DisplayToast("程序启动完成");
     }
 //登陆按钮
     public void OnLoginBtnClick(View V) {
         //判断之前是否已加载到父窗口，已加载要先去掉
-        if(loginDialogView.getParent()!=null)
-            ((ViewGroup) loginDialogView.getParent()).removeView(loginDialogView);
         loginDlg.show();
     }
     //不到位按钮
         public void OnNotInPlaceBtnClick(View V)
     {
         mainPresenter.doInPlace(0);
-        if(suggestDialogView.getParent()!=null)
-            ((ViewGroup) suggestDialogView.getParent()).removeView(suggestDialogView);
         suggestDlg.show();
     }
     //不满意按钮
@@ -112,30 +125,28 @@ public class MainActivity extends AppCompatActivity{
     {
         //判断之前是否已加载到父窗口，已加载要先去掉
         mainPresenter.doEvaluating(0);
-        if(suggestDialogView.getParent()!=null)
-            ((ViewGroup) suggestDialogView.getParent()).removeView(suggestDialogView);
         suggestDlg.show();
     }
     public void OnInPlaceBtnClick(View V)
     {
         mainPresenter.doInPlace(1);
-        DisplayToast("正在提交评价");
+        DisplayToast("正在连接服务器");
     }
     public void OnSatisfactionBtn2Click(View V)
     {
         mainPresenter.doEvaluating(2);
-        DisplayToast("正在提交评价");
+        DisplayToast("正在连接服务器");
     }
     public void OnSatisfactionBtn1Click(View V)
     {
         mainPresenter.doEvaluating(1);
-        DisplayToast("正在提交评价");
+        DisplayToast("正在连接服务器");
     }
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        // Trigger the initial hide() shortly after the activity has been
+        // Trigger the initial hideActionBar() shortly after the activity has been
         // created, to briefly hint to the user that UI controls
         // are available.
         delayedHide(100);
@@ -157,7 +168,7 @@ public class MainActivity extends AppCompatActivity{
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     };
-    private void hide() {
+    private void hideActionBar() {
         // Hide UI first
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -170,11 +181,11 @@ public class MainActivity extends AppCompatActivity{
     private final Runnable mHideRunnable = new Runnable() {
         @Override
         public void run() {
-            hide();
+            hideActionBar();
         }
     };
     /**
-     * Schedules a call to hide() in [delay] milliseconds, canceling any
+     * Schedules a call to hideActionBar() in [delay] milliseconds, canceling any
      * previously scheduled calls.
      */
     private void delayedHide(int delayMillis) {
@@ -212,29 +223,21 @@ public class MainActivity extends AppCompatActivity{
         etUserName = (EditText) loginDialogView.findViewById(R.id.etUserName);//注意这个地方mydialogview这个一定要加，否则指针不正确，会在读它的时候异常退出
         etPassword = (EditText) loginDialogView.findViewById(R.id.etPassword);
 
-        loginDlg.setTitle("登陆账号")
+        loginDlgBld.setTitle("登陆账号")
                 .setView(loginDialogView)//在这一步实现了和资源文件中的mylogindialog的关联
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
-                        hide();
+                        hideActionBar();
                     }
                 })
                 .setPositiveButton("登录", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface arg0, int arg1) {
                         // TODO Auto-generated method stub
-
                         DisplayToast("正在验证账号密码");
-                        Map<String, String> urlParams=new HashMap<>();
-                        String httpType="POST";
-                        String Url=getString(R.string.ServerPath)+"APPLoginReceive.php";
-                        urlParams.put("nn",etUserName.getText().toString());
-                        urlParams.put("pp",etPassword.getText().toString());
-                        urlParams.put("act","login");
-                        HttpURLConnectionTools conn=new HttpURLConnectionTools(ifHttpCallback,httpType,Url,urlParams);
-                        conn.start();
-                        hide();
+                        mainPresenter.doLogin(etUserName.getText().toString(),etPassword.getText().toString());
+                        hideActionBar();
                     }
                 })
                 .setNeutralButton("取消", new DialogInterface.OnClickListener() {
@@ -243,41 +246,31 @@ public class MainActivity extends AppCompatActivity{
                     public void onClick(DialogInterface arg0, int arg1) {
                         // TODO Auto-generated method stub
                         DisplayToast("取消登陆");
-                        hide();
+                        hideActionBar();
                     }
                 });
-        loginDlg.create();
+        loginDlg=loginDlgBld.create();
     }
 
     //建议对话框
     public void SuggestDialog() {
         final EditText etAdviserTel = (EditText) suggestDialogView.findViewById(R.id.etAdviserTel);
         final EditText etSuggestion = (EditText) suggestDialogView.findViewById(R.id.etSuggestion);
-
-        suggestDlg.setTitle("提交您的建议")
+        suggestDlgBld.setTitle("提交您的建议")
                 .setView(suggestDialogView)
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
-                        hide();
+                        hideActionBar();
                     }
                 })
                 .setPositiveButton("提交", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface arg0, int arg1) {
                         // TODO Auto-generated method stub
-
                         DisplayToast("正在提交");
-                        Map<String, String> urlParams=new HashMap<>();
-                        String httpType="POST";
-                        String Url=getString(R.string.ServerPath)+"APPComReceive.php";
-                        urlParams.put("token",token);
-                        urlParams.put("tel",etAdviserTel.getText().toString());
-                        urlParams.put("sug",etSuggestion.getText().toString());
-                        urlParams.put("act","sug");
-                        HttpURLConnectionTools conn=new HttpURLConnectionTools(ifHttpCallback,httpType,Url,urlParams);
-                        conn.start();
-                        hide();
+                        mainPresenter.doSuggesting(etAdviserTel.getText().toString(),etSuggestion.getText().toString());
+                        hideActionBar();
                     }
                 })
                 .setNeutralButton("取消", new DialogInterface.OnClickListener() {
@@ -286,13 +279,13 @@ public class MainActivity extends AppCompatActivity{
                     public void onClick(DialogInterface arg0, int arg1) {
                         // TODO Auto-generated method stub
                         DisplayToast("取消建议");
-                        hide();
+                        hideActionBar();
                     }
                 });
-        loginDlg.create();
+        suggestDlg=suggestDlgBld.create();
     }
     protected void onResume() {
-        hide();//需要重新隐藏
+        hideActionBar();//需要重新隐藏
         super.onResume();
     }
     private static class UIHandler extends Handler{
@@ -304,11 +297,17 @@ public class MainActivity extends AppCompatActivity{
         public void handleMessage(Message msg) {
             // TODO Auto-generated method stub
             super.handleMessage(msg);
+            Log.e("message.what:",Integer.toString(msg.what));
+            if(msg.what==1) //reset time
+            {
+                Log.e("handle reset time:",Integer.toString(msg.what));
+                main.get().suggestDlg.dismiss();
+            }
             Bundle bundle = msg.getData();
             String act=bundle.getString("act");
             if(act!=null&&act.equals("updateIDa")){
                 String ida=bundle.getString("ida");
-                Log.d("message get ida:",ida);
+                Log.e("message get ida:",ida);
                 main.get().ida = ida;
                 main.get().token= bundle.getString("token");
                 main.get().DisplayPortrait(ida);
@@ -316,26 +315,28 @@ public class MainActivity extends AppCompatActivity{
                 main.get().mainPresenter.setToken(main.get().token);    //更新到控制器
             }
             if(act!=null&&act.equals("sug")) {
-
+                main.get().soundPool.play(main.get().soundID.get(3), 1, 1, 0, 0, 1);
                 main.get().DisplayToast("谢谢您的建议");
-                Log.d("message get :","sug");
+                Log.e("message get :","sug");
             }
             if(act!=null&&act.equals("sat")) {
+                main.get().soundPool.play(main.get().soundID.get(2), 1, 1, 0, 0, 1);
                 main.get().DisplayToast("谢谢您的评价");
-                Log.d("message get :","sug");
+                Log.e("message get :","sug");
             }
             if(act!=null&&act.equals("inp")) {
+                main.get().soundPool.play(main.get().soundID.get(2), 1, 1, 0, 0, 1);
                 main.get().DisplayToast("谢谢您的评价");
-                Log.d("message get :","sug");
+                Log.e("message get :","sug");
             }
             if(act!=null&&act.equals("toast")) {
                 main.get().DisplayToast(bundle.getString("string"));
-                Log.d("message get :","sug");
+                Log.e("message get :","sug");
             }
             if(act!=null&&act.equals("netError")) {
-                main.get().DisplayToast("neterror");
+                main.get().DisplayToast("网络错误，或未登陆");
                 String ida = bundle.getString("ida");
-                Log.d("message get :","neterror");
+                Log.e("message get :","neterror");
             }
         }
     }
@@ -385,4 +386,16 @@ public class MainActivity extends AppCompatActivity{
         UIhandler.sendMessage(msg);
         Log.e("return:",response);
     }};
+    private void resetTime() {
+        // TODO Auto-generated method stub
+        Log.e("dispatchTouchEvent:","call resetTime");
+        UIhandler.removeMessages(1);//從消息隊列中移除
+        Message msg = UIhandler.obtainMessage(1);
+        UIhandler.sendMessageDelayed(msg, 1000*60*5);//無操作5分钟后進入屏保
+    }
+    @Override
+    public boolean dispatchTouchEvent(android.view.MotionEvent event) {
+        resetTime();
+        return super.dispatchTouchEvent(event);
+    };
 }

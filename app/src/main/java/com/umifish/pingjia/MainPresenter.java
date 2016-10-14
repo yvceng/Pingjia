@@ -33,8 +33,28 @@ class MainPresenter {
     void setIda(String id){
         ida=id;
     }
+    void doLogin(String username,String password){
+        Map<String, String> urlParams=new HashMap<>();
+        String httpType="POST";
+        String Url=ServerPath+"APPLoginReceive.php";
+        urlParams.put("nn",username);
+        urlParams.put("pp",password);
+        urlParams.put("act","login");
+        HttpURLConnectionTools conn=new HttpURLConnectionTools(ifHttpCallback,httpType,Url,urlParams);
+        conn.start();
+    }
+    void doSuggesting(String tel,String suggestion){
+        Map<String, String> urlParams=new HashMap<>();
+        String httpType="POST";
+        String Url=ServerPath+"APPComReceive.php";
+        urlParams.put("token",token);
+        urlParams.put("tel",tel);
+        urlParams.put("sug",suggestion);
+        urlParams.put("act","sug");
+        HttpURLConnectionTools conn=new HttpURLConnectionTools(ifHttpCallback,httpType,Url,urlParams);
+        conn.start();
+    }
     void doEvaluating(int rank){
-        DisplayToast("正在提交");
         Map<String, String> urlParams=new HashMap<>();
         String httpType="POST";
         String Url=ServerPath+"APPComReceive.php";
@@ -45,7 +65,6 @@ class MainPresenter {
         conn.start();
     }
     void doInPlace(int rank){
-        DisplayToast("正在提交");
         Map<String, String> urlParams=new HashMap<>();
         String httpType="POST";
         String Url=ServerPath+"APPComReceive.php";
@@ -81,11 +100,11 @@ class MainPresenter {
                     }else if( json.getString("act").equals("sat")) {//判断是否是评价操作
                         bd.putString("act", "sat");
                         bd.putString("result", "success");
-                    }else if( json.getString("act").equals("sug")) {//判断是否是建议操作
+                    }else if( json.getString("act").equals("sug")) {//判断是否是满意度建议操作
                         bd.putString("act", "sug");
                         bd.putString("result", "success");
-                    }else if( json.getString("act").equals("inp")) {//判断是否是建议操作
-                        bd.putString("act", "sug");
+                    }else if( json.getString("act").equals("inp")) {//判断是否是到位评价操作
+                        bd.putString("act", "inp");
                         bd.putString("result", "success");
                     }else{
                         return;
