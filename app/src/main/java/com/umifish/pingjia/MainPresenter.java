@@ -1,5 +1,7 @@
 package com.umifish.pingjia;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -12,6 +14,8 @@ import org.json.JSONTokener;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.content.Context.MODE_PRIVATE;
+
 /**
  * 分离开的控制器
  * Created by lenovo on 2016/10/13.
@@ -22,17 +26,52 @@ class MainPresenter {
     private String token;
     private Handler UIHandler;
     private String ServerPath;
-    MainPresenter(String serverPath,Handler uiHandler)
+    private boolean restored;
+    private SharedPreferences sp;
+    private UpdateManager um;
+    MainPresenter(Context ctx,String serverPath,Handler uiHandler)
     {
+        sp = ctx.getSharedPreferences("SP", MODE_PRIVATE);
         ServerPath=serverPath;
         UIHandler =uiHandler;
+        restored=false;
+        um=new UpdateManager(ctx);
+    }
+    void checkUpdate()
+    {
+        um.checkUpdate();
+    }
+    boolean restorePermanentData()
+    {
+        //返回STRING_KEY的值
+        token=sp.getString("token", "");
+        //如果NOT_EXIST不存在，则返回值为""
+        ida=sp.getString("ida", "");
+        restored=sp.getBoolean("restored",false);
+        Log.e("restored ","ida"+ida);
+        if(restored)
+        return true;
+        else return false;
+    }
+    void savePermanentData()
+    {
+        //获取SharedPreferences对象
+        //存入数据
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("token", token);
+        editor.putString("ida",ida);
+        editor.putBoolean("restored", true);
+        editor.apply();
+        Log.e("save ","ida"+ida);
     }
     void setToken(String t){
         token=t;
     }
+    String getToken( ){return token;}
     void setIda(String id){
         ida=id;
     }
+    String getIda(){return  ida;}
     void doLogin(String username,String password){
         Map<String, String> urlParams=new HashMap<>();
         String httpType="POST";
@@ -76,7 +115,7 @@ class MainPresenter {
     }
 
     //http请求回调函数
-    HttpConnectInterface ifHttpCallback =new HttpConnectInterface(){
+    private HttpConnectInterface ifHttpCallback =new HttpConnectInterface(){
         @Override
         public void httpCallback(String response) {
             Message msg=new Message();
@@ -93,9 +132,11 @@ class MainPresenter {
                 // 网络请求成功
                 if( json.getString("result").equals("success")) {
                     if( json.getString("act").equals("login")) {//判断是否是登陆操作
-                        bd.putString("act", "updateIDa");
-                        bd.putString("ida", json.getString("ida"));
-                        bd.putString("token", json.getString("token"));
+                        bd.putString("act", "log");
+                        ida= json.getString("ida");
+                        bd.putString("ida",ida);
+                        token=json.getString("token");
+                        bd.putString("token", token);
                         bd.putString("result", "success");
                     }else if( json.getString("act").equals("sat")) {//判断是否是评价操作
                         bd.putString("act", "sat");

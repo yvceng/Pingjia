@@ -22,10 +22,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
@@ -81,9 +77,11 @@ public class MainActivity extends AppCompatActivity{
         mContentView = findViewById(R.id.main_layout);
         imView = (ImageView) findViewById(R.id.imageView);
         mWebView = (WebView)findViewById(R.id.user_info_WebView);
-
-        DisplayUserInfo("");
-        DisplayPortrait("");
+        mainPresenter=new MainPresenter(this,getString(R.string.ServerPath),UIhandler);
+        initVariables();
+        Log.e("init ","ida="+ida);
+        DisplayUserInfo(ida);
+        DisplayPortrait(ida);
         //登陆对话框
         loginDlgBld = new AlertDialog.Builder(MainActivity.this);
         loginInflater = LayoutInflater.from(MainActivity.this);
@@ -93,7 +91,6 @@ public class MainActivity extends AppCompatActivity{
         suggestDialogView = loginInflater.inflate(R.layout.activity_suggest, null);
         LoginDialog();
         SuggestDialog();
-        mainPresenter=new MainPresenter(getString(R.string.ServerPath),UIhandler);
 
         SoundPool.Builder builder = new SoundPool.Builder();
         builder.setMaxStreams(5);//传入音频数量
@@ -108,6 +105,19 @@ public class MainActivity extends AppCompatActivity{
         soundID.put(2,soundPool.load(this,R.raw.thankpj,1));
         soundID.put(3,soundPool.load(this,R.raw.thankjy,1));
         DisplayToast("程序启动完成");
+        mainPresenter.checkUpdate();
+
+    }
+    private void initVariables()
+    {
+        if(mainPresenter.restorePermanentData())
+        {
+            token=mainPresenter.getToken();
+            ida=mainPresenter.getIda();
+        }else{
+            token="";
+            ida="";
+        }
     }
 //登陆按钮
     public void OnLoginBtnClick(View V) {
@@ -256,6 +266,7 @@ public class MainActivity extends AppCompatActivity{
     public void SuggestDialog() {
         final EditText etAdviserTel = (EditText) suggestDialogView.findViewById(R.id.etAdviserTel);
         final EditText etSuggestion = (EditText) suggestDialogView.findViewById(R.id.etSuggestion);
+
         suggestDlgBld.setTitle("提交您的建议")
                 .setView(suggestDialogView)
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -282,6 +293,7 @@ public class MainActivity extends AppCompatActivity{
                         hideActionBar();
                     }
                 });
+        resetTime();//定时关闭
         suggestDlg=suggestDlgBld.create();
     }
     protected void onResume() {
@@ -305,14 +317,14 @@ public class MainActivity extends AppCompatActivity{
             }
             Bundle bundle = msg.getData();
             String act=bundle.getString("act");
-            if(act!=null&&act.equals("updateIDa")){
+            if(act!=null&&act.equals("log")){
                 String ida=bundle.getString("ida");
-                Log.e("message get ida:",ida);
+                Log.e("登陆成功，账号：",ida);
                 main.get().ida = ida;
                 main.get().token= bundle.getString("token");
                 main.get().DisplayPortrait(ida);
                 main.get().DisplayUserInfo(ida);
-                main.get().mainPresenter.setToken(main.get().token);    //更新到控制器
+                main.get().mainPresenter.savePermanentData();
             }
             if(act!=null&&act.equals("sug")) {
                 main.get().soundPool.play(main.get().soundID.get(3), 1, 1, 0, 0, 1);
@@ -340,52 +352,6 @@ public class MainActivity extends AppCompatActivity{
             }
         }
     }
-    //http请求回调函数
-    HttpConnectInterface ifHttpCallback =new HttpConnectInterface(){
-    @Override
-    public void httpCallback(String response) {
-        Message msg=new Message();
-        Bundle bd=new Bundle();
-        if(response==null||response.equals("")) {
-            Log.e("httpCallback。response：", "null");
-            return;
-        }
-        //解析json
-        Log.d("httpCallback。response：",response);
-        try {
-            JSONTokener jsonParser = new JSONTokener(response);
-            JSONObject json = (JSONObject) jsonParser.nextValue();
-            // 网络请求成功
-            if( json.getString("result").equals("success")) {
-
-                if( json.getString("act").equals("login")) {//判断是否是登陆操作
-                    bd.putString("act", "updateIDa");
-                    bd.putString("ida", json.getString("ida"));
-                    bd.putString("token", json.getString("token"));
-                    bd.putString("result", "success");
-                }else if( json.getString("act").equals("sat")) {//判断是否是评价操作
-                    bd.putString("act", "sat");
-                    bd.putString("result", "success");
-                }else if( json.getString("act").equals("sug")) {//判断是否是建议操作
-                    bd.putString("act", "sug");
-                    bd.putString("result", "success");
-                 }else{
-                    return;
-                }
-            }else{
-                //网络请求不成功
-                bd.putString("act","netError");
-            }
-        } catch (JSONException ex) {
-            // 异常处理代码
-            Log.e("httpCallback","json parser error");
-            ex.printStackTrace();
-            return;
-        }
-        msg.setData(bd);
-        UIhandler.sendMessage(msg);
-        Log.e("return:",response);
-    }};
     private void resetTime() {
         // TODO Auto-generated method stub
         Log.e("dispatchTouchEvent:","call resetTime");
@@ -395,7 +361,6 @@ public class MainActivity extends AppCompatActivity{
     }
     @Override
     public boolean dispatchTouchEvent(android.view.MotionEvent event) {
-        resetTime();
         return super.dispatchTouchEvent(event);
     };
 }
