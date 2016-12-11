@@ -1,22 +1,12 @@
 package com.umifish.pingjia;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.AlertDialog.Builder;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Environment;
@@ -27,6 +17,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  *@author coolszy
@@ -39,9 +40,9 @@ public class UpdateManager
     //是否需要更新
     boolean needUpdate=false;
     /* 下载中 */
-    private static final int DOWNLOAD = 1;
+    private static final int DOWNLOAD = 11;
     /* 下载结束 */
-    private static final int DOWNLOAD_FINISH = 2;
+    private static final int DOWNLOAD_FINISH = 12;
     /* 保存解析的XML信息 */
     HashMap<String, String> mHashMap;
     /* 下载保存路径 */
@@ -125,7 +126,8 @@ public class UpdateManager
         try
         {
             // 把version.xml放到网络上，然后获取文件信息
-            InputStream inStream = getInputStreamFromUrl(R.string.ServerPath+"version.xml");//ParseXmlService.class.getClassLoader().getResourceAsStream("version.xml");
+            InputStream inStream = getInputStreamFromUrl(mContext.getString(R.string.ServerPath)+"version.xml");//ParseXmlService.class.getClassLoader().getResourceAsStream("version.xml");
+
             // 解析XML文件。 由于XML文件比较小，因此使用DOM方式进行解析
             ParseXmlService service = new ParseXmlService();
             mHashMap = service.parseXml(inStream);
